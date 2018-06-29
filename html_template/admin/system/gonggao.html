@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>公告</title>
+    {css href="__STATIC__/__AF__/layui/css/layui.css,__STATIC__/__AC__/style.css" /}
+    <link rel="icon" href="__STATIC__/__AI__/code.png">
+</head>
+<body>
+<fieldset class="layui-elem-field">
+  <legend>{$web.title}</legend>
+  <div class="layui-field-box">
+    {$web.cont}
+  </div>
+</fieldset>
+<script type="text/javascript" charset="utf8" src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+<script type="text/javascript" src="http://cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js"></script>
+{js href="__STATIC__/__AF__/layui/layui.js,__STATIC__/__AJ__/index.js"}
+<script>
+   layui.use('layer', function(){
+  var layer = layui.layer;
+     layer.config({
+  extend: 'myskin/style.css', //加载新皮肤
+  skin: 'myskin1' //一旦设定，所有弹层风格都采用此主题。
+});
+  layer.open({
+    title:'系统公告',
+  type: 1,
+    area: ['500px', '300px'],
+  content: '{$gonggao}' //这里content是一个普通的String
+});
+});              
+
+</script>
+</body>
+</html>
