@@ -28,7 +28,7 @@ class Verify extends AdminBase
             $beizhu=Request::post("beizhu");
             $ctime=time();
             $end=Time::daysAfter(7);
-            $b=session('vip_admin.id');
+            $b=cookie('vip_admin.id');
           $ucount=Db::name('kouling')->where('kluid',$b)->count();
           $maxcount=Db::name('MustSystemUser')->where('id',$b)->find();
           
@@ -87,7 +87,7 @@ class Verify extends AdminBase
     public function kladmin(){//口令管理
 
         if(Request::isPost()){
-            $uid=session('vip_admin.id');
+            $uid=cookie('vip_admin.id');
             $show=Db::name('kouling')->where('kluid',$uid)->select();
             // 返回JSON
             foreach ($show as $key=>$v){
@@ -136,7 +136,7 @@ class Verify extends AdminBase
 //            ->select();
 //        dump($show);
         if(Request::isPost()){
-            $uid=session('vip_admin.id');
+            $uid=cookie('vip_admin.id');
             $show=Db::name('kouling')
                 ->alias('a')
                 ->join('klresult r','a.id = r.klid')

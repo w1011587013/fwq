@@ -5,6 +5,7 @@ use org\Auth;
 use Db;
 use Config;
 use Session;
+use think\facade\Cookie;
 
 class AdminBase extends Base{
 
@@ -29,7 +30,7 @@ class AdminBase extends Base{
     // 检测登录
     public function isLogin(){
         // 如果没有登录
-        if( !Session::get('vip_admin.id') ){
+        if( !Cookie::get('vip_admin.id') ){
             // 跳转到登录
             $this->redirect('Login/index');
             echo '你没有登录';

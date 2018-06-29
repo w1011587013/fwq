@@ -11,6 +11,7 @@ use Config;
 use Db;
 use Session;
 use Request;
+use think\Cookie;
 
 class Login extends AdminBase{
 
@@ -43,7 +44,8 @@ class Login extends AdminBase{
                     if ($db['status'] != 1) {
                         $this->error('当前用户已冻结');
                     } else {
-                        Session::set('vip_admin', $db);
+                        //Session::set('vip_admin', $db);
+                        Cookie::set('vip_admin',$db,3600);
                         $SystemUser->update([
                             'last_login_time' => date('Y-m-d H:i:s', time()),
                             'last_login_ip'   => $this->request->ip(),
@@ -69,7 +71,8 @@ class Login extends AdminBase{
 
     // 切换登录
     public function out(){
-        session('vip_admin',null);
+        Cookie::delete('vip_admin');
+       // cookie('vip_admin',null);
         $this->redirect('index');
     }
 
