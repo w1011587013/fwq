@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <title>Data-Table 表格</title>
     <!--<link rel="stylesheet" href="http://cdn.datatables.net/1.10.13/css/jquery.dataTables.min.css">-->
-    {css href="__STATIC__/__AF__/layui/css/layui.css,__STATIC__/__AC__/style.css" /}
+    {css href="__STATIC__/__AF__/layui2.0/css/layui.css,__STATIC__/__AC__/style.css" /}
     <link rel="icon" href="__STATIC__/__AI__/code.png">
 </head>
 <body class="body">
@@ -43,6 +43,19 @@
             {/eq}
         </div>
     </div>
+
+    <div class="layui-form-item layui-form-text">
+        <label class="layui-form-label">文本域</label>
+        <div class="layui-input-block">
+            <textarea name="gonggao" placeholder="请输入内容" class="layui-textarea" >{$data['gonggao']?:''}</textarea>
+        </div>
+    </div>
+  <div class="layui-form-item">
+        <label class="layui-form-label">到期时间</label>
+        <div class="layui-input-inline">
+            <input name="endtime" type="text" lay-verify="required" autocomplete="off" placeholder="请输入到期时间" class="layui-input" id=endtime value="{$data['endtime']?:''}" />
+        </div>
+    </div>
     <div class="layui-form-item">
         <div class="layui-input-block">
             <input name="id" type="hidden" value="{$data['id']}">
@@ -54,11 +67,15 @@
 <!-- jQuery -->
 <script type="text/javascript" charset="utf8" src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
 <script type="text/javascript" src="http://cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js"></script>
-{js href="__STATIC__/__AF__/layui/layui.js,__STATIC__/__AJ__/table-tool.js"}
+{js href="__STATIC__/__AF__/layui2.0/layui.js,__STATIC__/__AJ__/table-tool.js"}
 <script type="text/javascript">
-    layui.use(['element','layer','form'], function(){
-        var $ = layui.jquery,element = layui.element,layer = layui.layer,form = layui.form();
-
+    layui.use(['element','layer','form','laydate'], function(){
+        var $ = layui.jquery,element = layui.element,layer = layui.layer,form = layui.form;
+       var laydate = layui.laydate;
+laydate.render({ 
+  elem: '#endtime'
+  ,type: 'datetime'
+});
         //监听指定开关
         form.on('switch(status)', function(data){
             /*console.log(data);

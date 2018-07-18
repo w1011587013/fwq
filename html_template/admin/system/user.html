@@ -1,0 +1,70 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>用户信息</title>
+    {css href="__STATIC__/__AF__/layui/css/layui.css,__STATIC__/__AC__/style.css" /}
+    <link rel="icon" href="__STATIC__/__AI__/code.png">
+</head>
+<body>
+
+<fieldset class="layui-elem-field">
+  <legend>{$web.title}</legend>
+  <div class="layui-field-box">
+
+      <table class="layui-table">
+          <colgroup>
+              <col width="50">
+              <col width="200">
+          </colgroup>
+
+          <tbody>
+          <tr>
+              <td>用户名称</td>
+              <td>{$xx.account}</td>
+          </tr>
+          <tr>
+              <td>最近登录时间</td>
+              <td> {$xx.last_login_time}</td>
+          </tr>
+          <tr>
+              <td>创建时间</td>
+              <td> {$xx.create_time}</td>
+          </tr>
+          <tr>
+              <td>最多生成口令</td>
+              <td> {$xx.klnumber}</td>
+          </tr>
+          <tr>
+              <td>最近登录IP</td>
+              <td> {$xx.last_login_ip}</td>
+          </tr>
+            <tr>
+              <td>到期时间</td>
+              <td> {$xx.endtime}</td>
+          </tr>
+          </tbody>
+      </table>
+  </div>
+</fieldset>
+<script type="text/javascript" charset="utf8" src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+<script type="text/javascript" src="http://cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js"></script>
+{js href="__STATIC__/__AF__/layui/layui.js,__STATIC__/__AJ__/index.js"}
+<script>
+   layui.use('layer', function(){
+  var layer = layui.layer;
+     layer.config({
+  extend: 'myskin/style.css', //加载新皮肤
+  skin: 'myskin1' //一旦设定，所有弹层风格都采用此主题。
+});
+//   layer.open({
+//     title:'系统公告',
+//   type: 1,
+//     area: ['500px', '300px'],
+//   content: '{$gonggao}' //这里content是一个普通的String
+// });
+});              
+
+</script>
+</body>
+</html>

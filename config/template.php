@@ -46,7 +46,7 @@ return [
         // 前台模板js文件夹
         '__IJ__'        => 'index/js',
         // 前台模板image文件夹
-        '__II__'        => 'index/image',
+        '__II__'        => 'index/img',
         // 前台模板frame文件夹
         '__IF__'        => 'index/frame',
         // 上传文件夹

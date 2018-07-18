@@ -14,39 +14,45 @@ use think\helper\Time;
 use Env;
 class Verify extends AdminBase
 {
+
     public function index(){
         $data['status'] = 0;
         $data['msg'] ='添加失败';
         if (Request::isPost()){
-            $kl=Request::post("kouling");
-            $zt=Request::post("zt");
-            if($zt==""){
-                $zt='0';
-            }
-            $sid=md5($kl.time());
-         //   $maurl=$this->qrcode('http://wx.vlezhu.com/yh?sid='.$sid);
-            $beizhu=Request::post("beizhu");
-            $ctime=time();
-            $end=Time::daysAfter(7);
-            $b=cookie('vip_admin.id');
-          $ucount=Db::name('kouling')->where('kluid',$b)->count();
-          $maxcount=Db::name('MustSystemUser')->where('id',$b)->find();
-          
-          if($ucount<$maxcount['klnumber']){
-            $neirong =['status'=>$zt,'kluid'=>$b,'createtime'=>$ctime,"kl"=>$kl,'endtime'=>$end,'maxnumber'=>50,'beizhu'=>$beizhu,'sid'=>$sid];
+            $post=Request::post();
 
-           $db=Db::name('kouling')->insert($neirong);
 
-            if ($db){
-                $data['status'] = 1;
-                $data['msg'] = '添加成功';
+            if(!isset($post['shuiyin'])){
+                $post['sydz']="/static/index/img/21.png";
 
             }
-          }else{
-          $data['msg'] ='已超过最大添加次数！添加失败';
-          	
-          }
-           // $data['msg'] =dump($db);
+            if(!isset($post['status'])){
+                $post['status']='0';
+            }
+            if (!isset($post['menu'])){
+                $post['menu']=[1,2,3,4,5,6,7];
+            }
+            $post['sid']=md5($post['kl'].time());
+            $post['createtime']=time();
+            $post['endtime']=Time::daysAfter(7);
+            $post['kluid']=session('vip_admin.id');
+            $post['menu']=array_values($post['menu']);
+            $post['menu']=implode(",",$post['menu']);
+         //$ucount=Db::name('yhhome')->where("id in (".$post['menu'].")")->select();
+        //  $maxcount=Db::name('MustSystemUser')->where('id',$b)->find();
+
+           $db=Db::name('kouling')->insert($post);
+
+            if ($db>0){
+                  $syyz['masid']=$post['sid'];
+               if( Db::name('iptime')->insert($syyz)){
+                   $data['status'] = 1;
+                   $data['msg'] = '添加成功';
+
+               };
+
+            }
+          	$data['cont']=$db;
             $this->ajaxReturn($data);
 
         }
@@ -54,11 +60,28 @@ class Verify extends AdminBase
             return view();
         }
 
-       //$a=$this->qrcode('http://www.baidu.com');
-      // echo $a;
-//        $a=Env::get('root_path') . 'vendor/';
-//        echo $a;
+    }
+    public function shuiyin(){
+        $data['msg']="";
+        if (Request::isPost()) {
 
+
+              $file = request()->file('uimg');
+            $info = $file->move('./uploads');
+            if($info){
+                $aa=$info->getSaveName();
+                $data['msg']='上传成功';
+                $data['src']=$aa;
+                $this->ajaxReturn($data);
+            }else{
+                $data['msg']="上传失败";
+                $this->ajaxReturn($data);
+            }
+        }else{
+            $data['msg']="未收到数据";
+            $this->ajaxReturn($data);
+        }
+     
     }
     public function qrcode($urla){
         header("Content-type: text/html; charset=utf-8");
@@ -87,7 +110,7 @@ class Verify extends AdminBase
     public function kladmin(){//口令管理
 
         if(Request::isPost()){
-            $uid=cookie('vip_admin.id');
+            $uid=session('vip_admin.id');
             $show=Db::name('kouling')->where('kluid',$uid)->select();
             // 返回JSON
             foreach ($show as $key=>$v){
@@ -120,8 +143,8 @@ class Verify extends AdminBase
     public function editKl(){//二维码生成
         if (Request::isGet()){
             $sid=Request::Get("sid");
-
-            $this->qrcode('http://www.sd1888.cn?sid='.$sid);
+            $url=Request::root(true);
+            $this->qrcode($url.'?sid='.$sid);
         }
         else{
             echo "暂时没有二维码";
@@ -136,11 +159,13 @@ class Verify extends AdminBase
 //            ->select();
 //        dump($show);
         if(Request::isPost()){
-            $uid=cookie('vip_admin.id');
+            $uid=session('vip_admin.id');
             $show=Db::name('kouling')
                 ->alias('a')
                 ->join('klresult r','a.id = r.klid')
                 ->where('kluid',$uid)
+                ->where('status',1)
+                ->order('r.id', 'desc')
                 ->select();
             // 返回JSON
             foreach ($show as $key=>$v){
@@ -177,5 +202,71 @@ class Verify extends AdminBase
         $data['msg'] = $this->msg;
         // 返回JSON
         $this->ajaxReturn($data);
+    }
+   public function set(){
+        if(Request::isGet()){
+            if (Request::get('sid'));{
+                $sid=Request::get('sid');
+                $sfind=Db::name('iptime')->where('masid',$sid)->find();
+                if ($sfind){
+                    $masid=$sfind['masid'];
+                    $divall=explode(',',$sfind['divall']);
+                    $box=explode(',',$sfind['box']);
+                    $box1=explode(',',$sfind['box1']);
+                    $box2=explode(',',$sfind['box2']);
+                    $box3=explode(',',$sfind['box3']);
+                    $box4=explode(',',$sfind['box4']);
+                    $box5=explode(',',$sfind['box5']);
+                    return $this->fetch('set',[
+                        'masid'=>$masid,
+                        'divall'=>$divall,
+                        'box'=>$box,
+                        'box1'=>$box1,
+                        'box2'=>$box2,
+                        'box3'=>$box3,
+                        'box4'=>$box4,
+                        'box5'=>$box5
+                    ]);
+                }else{
+                    $this->error('没有该水印数据，会有显示默认数据');
+                }
+            }
+        }else{
+           $this->error('未知参数','index');
+        }
+
+    }
+    public function setyz(){
+        $data['msg']='未收到';
+        $data['status']=0;
+        if(Request::isPOST()){
+
+            $post=Request::post();
+            $tj['box']=$post['boxtop'].",".$post['boxleft'].','.$post['boxdeg'];
+            $tj['box1']=$post['box1top'].','.$post['box1left'].','.$post['box1deg'];
+            $tj['box2']=$post['box2top'].','.$post['box2left'].','.$post['box2deg'];
+            $tj['box3']=$post['box3top'].','.$post['box3left'].','.$post['box3deg'];
+            $tj['box4']=$post['box4top'].','.$post['box4left'].','.$post['box4deg'];
+            $tj['box5']=$post['box5top'].','.$post['box5left'].','.$post['box5deg'];
+
+            $tj['masid']=$post['masid'];
+            $tj['divall']=$post['width'].','.$post['height'];
+           $tj['status']=1;
+            $db=Db::name('iptime');
+//            $dbt=$db->insert($tj);
+           $dbt=$db->where('masid', $post['masid'])->update($tj);
+            if($dbt){
+                $data['msg']='更新成功';
+               
+            }else{
+                $data['msg']='更新失败';
+            }
+            $data['status']=1;
+            $data['tj']=$tj;
+            $this->ajaxReturn($data);
+        }else{
+            $this->ajaxReturn($data);
+        }
+
     }
 }

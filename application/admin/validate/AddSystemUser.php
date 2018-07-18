@@ -13,6 +13,7 @@ class AddSystemUser extends Validate
         'account'       => 'require|unique:MustSystemUser',
         'password'      => 'require|confirm:re_password',
         're_password'   => 'confirm:password',
+      	'klnumber'=>'number|between:1,10000',
     ];
 
     protected $message = [
@@ -21,5 +22,6 @@ class AddSystemUser extends Validate
         'password.require'          => '请输入密码',
         'password.confirm'          => '两次输入密码不一致',
         're_password.confirm'       => '两次输入密码不一致',
+      'klnumber.between'=>'口令次数必须在1-10000之间',
     ];
 }

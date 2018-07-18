@@ -36,7 +36,7 @@ class SystemUser extends AdminBase{
         // 登录请求
         if($this->request->isPost()){
             // 获取POST数据
-            $POST = $this->request->only(['account', 'password', 're_password', 'group']);
+            $POST = $this->request->only(['account', 'password', 're_password', 'group','endtime','status','klnumber']);
             // 验证数据正确性
             $result = $this->validate($POST, 'AddSystemUser');
             // 验证错误
@@ -44,6 +44,7 @@ class SystemUser extends AdminBase{
                 $this->error($result);
             }else{
                 // 添加数据
+             
                 $ins = $this->addSystemUser($POST);
                 if($ins){
                     // 添加用户到权限组
@@ -93,6 +94,7 @@ class SystemUser extends AdminBase{
             if ($result !== true) {
                 $this->error($result);
             }else{
+             // $POST['endtime']=strtotime($POST['endtime']);
                 if($this->editSystemUser($POST)){
                     $data['status'] = 1;
                 }

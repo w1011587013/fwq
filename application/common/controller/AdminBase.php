@@ -5,7 +5,6 @@ use org\Auth;
 use Db;
 use Config;
 use Session;
-use think\facade\Cookie;
 
 class AdminBase extends Base{
 
@@ -30,7 +29,7 @@ class AdminBase extends Base{
     // 检测登录
     public function isLogin(){
         // 如果没有登录
-        if( !Cookie::get('vip_admin.id') ){
+        if( !Session::get('vip_admin.id') ){
             // 跳转到登录
             $this->redirect('Login/index');
             echo '你没有登录';
@@ -152,7 +151,7 @@ class AdminBase extends Base{
     }
 
     // 获取单个系统用户数据
-    public function getOneSystemUser($id){
+   public function getOneSystemUser($id){
         if(!$id){
             return false;
         }
@@ -161,7 +160,7 @@ class AdminBase extends Base{
         ];
         return Db::name('MustSystemUser')
                ->alias('su')
-               ->field(['su.id','aga.gid','account','status'])
+               ->field(['su.id','aga.gid','account','status','gonggao','su.endtime'])
                ->join( $join )
                ->find($id);
     }
@@ -273,6 +272,8 @@ class AdminBase extends Base{
             'account'       => $post['account'],
             'password'      => md5($post['password'].Config::get('key')),
             'create_time'   => date('Y-m-d H:i:s',time()),
+          'endtime'   => $post['endtime'],
+          'klnumber'=>intval($post['klnumber']),
             'status'        => isset($post['status'])?:'0'
         ]);
         // 返回是否添加成功
@@ -287,6 +288,8 @@ class AdminBase extends Base{
         $ins = Db::name('MustSystemUser')->update([
             'id'            => $pid,
             'account'       => $post['account'],
+            'gonggao'       =>$post['gonggao'],
+          'endtime'       =>$post['endtime'],
             'status'        => isset($post['status'])?:'0',
             'updatetime'=>date('Y-m-d H:i:s',time())
         ]);
@@ -294,21 +297,21 @@ class AdminBase extends Base{
         $agaModel = Db::name('MustAuthGroupAccess');    // model对象
         // 查询是否有改数据
         $aga = $agaModel->where('sid',$pid)->find();
-        $gx=$agaModel->update([
-            'id' => $aga['id'],
-            'gid'=> $pgid,
-            'sid'=> $pid
-        ]);
-//        if($aga){
-//            // 删除该数据
-//            $agaModel->where('id',$aga['id'])->delete();
-//
-//        }
-//        $tj['sid']=$pid;
-//        $tj['gid']=$pgid;
-//      //   重新赋值或添加新值
-//        $add = $agaModel->insert($tj);
-        if($gx && $ins){
+//        $gx=$agaModel->update([
+//            'id' => $aga['id'],
+//            'gid'=> $pgid,
+//            'sid'=> $pid
+//        ]);
+        if($aga){
+            // 删除该数据
+            $agaModel->where('id',$aga['id'])->delete();
+
+        }
+        $tj['sid']=$pid;
+        $tj['gid']=$pgid;
+      //   重新赋值或添加新值
+        $add = $agaModel->insert($tj);
+        if($add && $ins){
             $this->msg = '操作成功';
             return true;
         }else{

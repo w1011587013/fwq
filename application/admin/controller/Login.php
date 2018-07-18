@@ -11,7 +11,6 @@ use Config;
 use Db;
 use Session;
 use Request;
-use think\Cookie;
 
 class Login extends AdminBase{
 
@@ -33,28 +32,30 @@ class Login extends AdminBase{
             if ($result !== true) {
                 $this->error($result);
             }else{
-                $SystemUser = Db::name('MustSystemUser');
+
                 // 收集登录数据
                 $where['account'] = $POST['account'];
                 $where['password'] = md5( $POST['password'] . Config::get('key') );
-            //    $db1 = $SystemUser->field('id,account,status')->where($where)->find();
-                $db = $SystemUser->where($where)->find();
-
+                $db = Db('MustSystemUser')->where($where)->field('id,account,status,endtime')->find();
+				$endtime=strtotime($db['endtime']);
+            
+              $thistime=time();
                 if (!empty($db)) {
                     if ($db['status'] != 1) {
                         $this->error('当前用户已冻结');
+                    }elseif($thistime > $endtime){
+                    $this->error('当前用户已过期');
                     } else {
-                        //Session::set('vip_admin', $db);
-                        Cookie::set('vip_admin',$db,3600);
-                        $SystemUser->update([
+                        Session::set('vip_admin', $db);
+                        Db('MustSystemUser')->where('id',$db['id'])->update([
                             'last_login_time' => date('Y-m-d H:i:s', time()),
-                            'last_login_ip'   => $this->request->ip(),
-                            'id'              => $db['id']
+                            'last_login_ip'   => $this->request->ip()
                         ]);
 
 
                        $this->success('登录成功', 'admin/Index/index');
                     }
+                
                 } else {
                     $this->error('账号或密码错误');
                 }
@@ -71,8 +72,7 @@ class Login extends AdminBase{
 
     // 切换登录
     public function out(){
-        Cookie::delete('vip_admin');
-       // cookie('vip_admin',null);
+        session('vip_admin',null);
         $this->redirect('index');
     }
 

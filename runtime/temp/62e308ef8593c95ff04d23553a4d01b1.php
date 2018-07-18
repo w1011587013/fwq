@@ -1,4 +1,4 @@
-<?php /*a:1:{s:43:"../html_template/admin/verify/klresult.html";i:1530181372;}*/ ?>
+<?php /*a:1:{s:43:"../html_template/admin/verify/klresult.html";i:1531734146;}*/ ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -24,8 +24,8 @@
 
 <div class="layui-tab">
     <ul class="layui-tab-title">
-        <li class="layui-this">口令管理</li>
-        <li>账号信息</li>
+        <li class="layui-this">扫码结果管理</li>
+        <!--<li>账号信息</li>-->
     </ul>
     <div class="layui-tab-content">
         <div class="layui-tab-item layui-show">
@@ -35,10 +35,14 @@
                     <a class="layui-btn layui-btn-danger radius btn-delect" id="btn-delete-all">批量删除</a>
                     <!--<a class="layui-btn btn-add btn-default" id="btn-add-article">发布文章</a>-->
                 </span>
+                <span class="fl">
+                    <a class="layui-btn radius btn-flush" id="btn-delete-flush"> <i class="layui-icon">&#x1002;</i>刷新页面</a>
+                    <!--<a class="layui-btn btn-add btn-default" id="btn-add-article">发布文章</a>-->
+                </span>
                 <form class="fr layui-form">
-                    <span class="layui-form-label">查询账号：</span>
+                    <span class="layui-form-label">查询字段：</span>
                     <div class="layui-input-inline">
-                        <input name="search" type="text" autocomplete="off" placeholder="查询账号" class="layui-input" />
+                        <input name="search" type="text" autocomplete="off" placeholder="查询字段" class="layui-input" />
                     </div>
                     <button type="button" class="layui-btn mgl-20" lay-submit="" lay-filter="search">查询</button>
                 </form>
@@ -49,12 +53,15 @@
                 <tr>
                     <th><input type="checkbox" lay-skin="primary" lay-filter="allChoose" /></th>
                     <th>口令码</th>
-                    <th>生成时间</th>
+
                     <th>扫描时间</th>
                     <th>扫描IP</th>
-                    <th>加密码</th>
+
                     <th>扫描结果</th>
+
                     <th>状态</th>
+                    <th>标记</th>
+                    <th>反馈</th>
                     <th>操作</th>
                 </tr>
                 </thead>
@@ -62,7 +69,7 @@
             </table>
 
         </div>
-        <div class="layui-tab-item">
+       <!-- <div class="layui-tab-item">-->
             <!-- 添加系统账号 -->
             <!--<form class="layui-form" action="">-->
             <!--<div class="layui-form-item">-->
@@ -102,7 +109,7 @@
             <!--</div>-->
             <!--</form>-->
 
-        </div>
+        <!--</div>-->
     </div>
 </div>
 
@@ -119,7 +126,7 @@
             "dom": '<"top">rt<"bottom"flp><"clear">',
             "autoWidth": false,                     // 自适应宽度
             "stateSave": true,                      // 刷新后保存页数
-            "order": [[ 5, "desc" ]],               // 排序
+            "order": [[ 2, "desc" ]],               // 排序
             "searching": false,                     // 本地搜索
             "info": true,                           // 控制是否显示表格左下角的信息
             "stripeClasses": ["odd", "even"],       // 为奇偶行加上样式，兼容不支持CSS伪类的场合
@@ -141,12 +148,32 @@
                         return '<input type="checkbox" lay-skin="primary" data-id="'+obj.id+'" lay-filter="oneChoose" />';
                     }},
                 {data: 'kl'},
-                {data: 'createtime'},
                 {data: 'smtime'},
-                {data: 'smip'},
-                {data: 'sma'},
+                {data: function(obj){
+                        if(obj.biaoji==0) {
+                            return '<span>'+obj.smip+'</span>';
+                        }
+                        else{
+                            return '<span style="color:#1E9FFF">'+obj.smip+'</span>';
+                        }
+                    },width:'44'},
                 {data: 'smresult'},
                 {data: 'ci'},
+                {data: function(obj){
+                        if(obj.biaoji==0) {
+                            return '<a class="layui-btn layui-btn-small layui-btn-warm btn-bj" data-id="' + obj.klid + '"  data-ip="'+obj.smip+'">标记</a>';
+                        }
+                        else{
+                            return '<a class="layui-btn layui-btn-small  btn-ybj" data-id="' + obj.klid + '" data-ip="'+obj.smip+'">已标记</a>';
+                        }
+                    },width:'44'},
+                {data: function(obj){
+                        if(obj.jubao==0){
+                            return  '<a class="layui-btn layui-btn-small layui-btn-danger btn-jb" data-id="'+obj.klid+'" data-ip="'+obj.smip+'">举报</a>';
+                        }else{
+                            return  '<a class="layui-btn layui-btn-small  btn-yjb" data-id="'+obj.klid+'" data-ip="'+obj.smip+'">已举报</a>';
+                        }
+                        },width:'44'},
                 {data: function(obj){
                         return  '<a class="layui-btn layui-btn-small layui-btn-normal btn-edit" data-id="'+obj.sid+'">二维码</a>';
                     },width:'44'}
@@ -168,7 +195,15 @@
                 deleteAll(ids,"<?php echo url('jgdelete'); ?>","<?php echo url('klresult'); ?>","<?php echo url('klresult'); ?>");
             }
         });
+        $(document).on('click','#btn-delete-flush', function(){
+            // getIds(table对象,获取input为id的属性)
+            layer.msg('刷新成功',{time:500},function(){
+                // 关闭父窗口
 
+                // 跳转
+                window.location.href = "<?php echo url('admin/Verify/klresult'); ?>";
+            })
+        });
         // 监听搜索按钮
         form.on('submit(search)', function(data){
             // 带参数重新初始化表格
@@ -222,26 +257,68 @@
             // 更新渲染
             form.render();
         });
-
-        // 添加系统用户
-        form.on('submit(add)', function(data){
-            console.log(data.field);
-            // 添加请求
-            $.post("<?php echo url('add'); ?>",data.field,function(res){
-                // 判断是否成功
-                if(res.status > 0){
-                    // 添加成功跳转
-                    layer.msg(res.msg,{time:1800},function(){
-                        // 跳转
-                        location.href = "<?php echo url('index'); ?>";
-                    })
-                }else{
-                    // 失败则提示
-                    layer.msg(res.msg);
+        $(document).on('click','.btn-bj', function(){
+            // 弹窗
+            layer.open({
+                type: 2,
+                title: '标记',
+                shadeClose: true,
+                shade: 0.8,
+                area: ['400px', '500px'],
+                content: "<?php echo url('Blacklist/biaoji'); ?>?klid="+$(this).attr('data-id')+"&ip="+$(this).attr('data-ip'),
+                end: function () {
+                    location.reload();
                 }
             });
-            return false;
-        })
+            // 更新渲染
+            form.render();
+        });
+        $(document).on('click','.btn-ybj', function(){
+            // 弹窗
+            layer.open({
+                type: 2,
+                title: '标记',
+                shadeClose: true,
+                shade: 0.8,
+                area: ['400px', '500px'],
+                content: "<?php echo url('Blacklist/bjedit'); ?>?klid="+$(this).attr('data-id')+"&ip="+$(this).attr('data-ip'),
+
+            });
+            // 更新渲染
+            form.render();
+        });
+        $(document).on('click','.btn-jb', function(){
+            // 弹窗
+            layer.open({
+                type: 2,
+                title: '举报反馈',
+                shadeClose: true,
+                shade: 0.8,
+                area: ['400px', '500px'],
+                content: "<?php echo url('Blacklist/add'); ?>?klid="+$(this).attr('data-id')+"&ip="+$(this).attr('data-ip'),
+                end: function () {
+                    location.reload();
+                }
+            });
+            // 更新渲染
+            form.render();
+        });
+        $(document).on('click','.btn-yjb', function(){
+            // 弹窗
+            layer.open({
+                type: 2,
+                title: '查看举报信息',
+                shadeClose: true,
+                shade: 0.8,
+                area: ['400px', '500px'],
+                content: "<?php echo url('Blacklist/jbedit'); ?>?klid="+$(this).attr('data-id')+"&ip="+$(this).attr('data-ip'),
+
+            });
+            // 更新渲染
+            form.render();
+        });
+        // 添加系统用户
+
 
     });
 </script>

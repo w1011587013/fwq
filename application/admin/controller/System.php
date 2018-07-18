@@ -25,16 +25,26 @@ class System extends AdminBase {
             'config'        => $this->getConfig()
         ]);
     }
-    public function gonggao(){
-		$web=['title'=>'个人信息','cont'=>'这是内容'];
-        return $this->fetch('gonggao',[
+   public function user(){
+        $uid=session('vip_admin.id');
+        $user=Db::name('MustSystemUser')->where('id',$uid)->find();
+       // dump($user);
+		$web=['title'=>'个人信息'];
+        return $this->fetch('user',[
+            'xx'=>$user,
             'web'        => $web,
-            'gonggao' => "这是公告公告aaaaaadfdsafadsfsafsafdsafsafasfaf",
+            'gonggao' =>  $user['gonggao'],
             'mysql_name'    => Config::get('database.database'),
             'mysql_size'    => $this->getMysqlDbSize(),
             'config'        => $this->getConfig()
         ]);
 
+    }
+    public function gonggao(){
+        $wx=Db('klresult')->where('smresult','like','%危险%')->count();
+        return $this->fetch('gonggao',[
+            'allip'
+        ]);
     }
 
 

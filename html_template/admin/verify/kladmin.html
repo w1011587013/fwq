@@ -24,7 +24,7 @@
 <div class="layui-tab">
     <ul class="layui-tab-title">
         <li class="layui-this">口令管理</li>
-        <li>账号信息</li>
+        <li>使用说明</li>
     </ul>
     <div class="layui-tab-content">
         <div class="layui-tab-item layui-show">
@@ -32,6 +32,10 @@
             <div class="my-btn-box">
                 <span class="fl">
                     <a class="layui-btn layui-btn-danger radius btn-delect" id="btn-delete-all">批量删除</a>
+                    <!--<a class="layui-btn btn-add btn-default" id="btn-add-article">发布文章</a>-->
+                </span>
+                <span class="fl">
+                    <a class="layui-btn radius btn-flush" id="btn-delete-flush"> <i class="layui-icon">&#x1002;</i>刷新页面</a>
                     <!--<a class="layui-btn btn-add btn-default" id="btn-add-article">发布文章</a>-->
                 </span>
                 <form class="fr layui-form">
@@ -62,44 +66,26 @@
 
         </div>
         <div class="layui-tab-item">
-            <!-- 添加系统账号 -->
-            <!--<form class="layui-form" action="">-->
-            <!--<div class="layui-form-item">-->
-            <!--<label class="layui-form-label">系统账号</label>-->
-            <!--<div class="layui-input-inline">-->
-            <!--<input name="account" type="text" lay-verify="title|required" autocomplete="off" placeholder="请输入账号" class="layui-input">-->
-            <!--</div>-->
-            <!--</div>-->
-            <!--<div class="layui-form-item">-->
-            <!--<label class="layui-form-label">输入密码</label>-->
-            <!--<div class="layui-input-inline">-->
-            <!--<input name="password" type="password" lay-verify="title|required" autocomplete="off" placeholder="请输入密码" class="layui-input">-->
-            <!--</div>-->
-            <!--</div>-->
-            <!--<div class="layui-form-item">-->
-            <!--<label class="layui-form-label">重复密码</label>-->
-            <!--<div class="layui-input-inline">-->
-            <!--<input name="re_password" type="password" lay-verify="title|required" autocomplete="off" placeholder="请重复输入" class="layui-input">-->
-            <!--</div>-->
-            <!--</div>-->
-            <!--<div class="layui-form-item">-->
-            <!--<label class="layui-form-label">所属权限组</label>-->
-            <!--<div class="layui-input-inline">-->
+            <div class="layui-collapse">
+                <div class="layui-colla-item">
+                    <h2 class="layui-colla-title">关于使用次数</h2>
+                    <div class="layui-colla-content layui-show">默认最大使用100次</div>
+                </div>
+                <div class="layui-colla-item">
+                    <h2 class="layui-colla-title">关于到期时间</h2>
+                    <div class="layui-colla-content layui-show">默认是二维码七天后过期</div>
+                </div>
+                <div class="layui-colla-item">
+                    <h2 class="layui-colla-title">口令码可编辑水印</h2>
+                    <div class="layui-colla-content layui-show">水印的宽高有系统设置的默认值，水印的排列顺序按照设置为准，水印的距离上、左是针对浏览器窗口设置的，角度正数是顺时针，负数是逆时针，可以设置后预览效果</div>
+                </div>
+                <div class="layui-colla-item">
+                    <h2 class="layui-colla-title">口令码关闭</h2>
+                    <div class="layui-colla-content layui-show">on为开启off为关闭，
+                        口令码可以在状态栏设置开启和关闭功能，关闭后口令码不再支持访问，口令码扫描结果会隐藏</div>
+                </div>
+            </div>
 
-            <!--</div>-->
-            <!--</div>-->
-            <!--<div class="layui-form-item">-->
-            <!--<label class="layui-form-label">状态</label>-->
-            <!--<div class="layui-input-inline">-->
-            <!--<input name="status" type="checkbox" lay-skin="switch" lay-filter="switch-status" lay-text="ON|OFF" checked value="1" />-->
-            <!--</div>-->
-            <!--</div>-->
-            <!--<div class="layui-form-item">-->
-            <!--<div class="layui-input-block">-->
-            <!--<button type="button" class="layui-btn" lay-submit="" lay-filter="add">添加</button>-->
-            <!--</div>-->
-            <!--</div>-->
-            <!--</form>-->
 
         </div>
     </div>
@@ -116,7 +102,7 @@
         // 初始化表格
         var table = $('#dateTable').DataTable({
             "dom": '<"top">rt<"bottom"flp><"clear">',
-            "autoWidth": false,                     // 自适应宽度
+            "autoWidth": true,                     // 自适应宽度
             "stateSave": true,                      // 刷新后保存页数
             "order": [[ 5, "desc" ]],               // 排序
             "searching": false,                     // 本地搜索
@@ -153,8 +139,9 @@
                         }
                     },width:'55'},
                 {data: function(obj){
-                        return  '<a class="layui-btn layui-btn-small layui-btn-normal btn-edit" data-id="'+obj.sid+'">二维码</a>';
-                    },width:'44'}
+
+                        return  '<a class="layui-btn layui-btn-small layui-btn-normal btn-set" data-id='+obj.sid+'>编辑</a>'+'<a class="layui-btn layui-btn-small layui-btn-normal btn-edit" data-id="'+obj.sid+'">二维码</a>';
+                    },width:'130'}
             ],
             "stateSaveParams": function () {           // 初始化完成调用事件
                 // 重新渲染form checkbox
@@ -173,7 +160,15 @@
                 deleteAll(ids,"{:url('kldelete')}","{:url('kladmin')}","{:url('kladmin')}");
             }
         });
+        $(document).on('click','#btn-delete-flush', function(){
+            // getIds(table对象,获取input为id的属性)
+            layer.msg('刷新成功',{time:500},function(){
+                // 关闭父窗口
 
+                // 跳转
+                window.location.href = "{:url('admin/Verify/kladmin')}";
+            })
+        });
         // 监听搜索按钮
         form.on('submit(search)', function(data){
             // 带参数重新初始化表格
@@ -223,6 +218,19 @@
                 shade: 0.8,
                 area: ['400px', '500px'],
                 content: "{:url('editKl')}?sid="+$(this).attr('data-id')
+            });
+            // 更新渲染
+            form.render();
+        });
+        $(document).on('click','.btn-set', function(){
+            // 弹窗
+            layer.open({
+                type: 2,
+                title: '编辑水印',
+                shadeClose: true,
+                shade: 0.8,
+                area: ['400px', '500px'],
+                content: "{:url('set')}?sid="+$(this).attr('data-id')
             });
             // 更新渲染
             form.render();

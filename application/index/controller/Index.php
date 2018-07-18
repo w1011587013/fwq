@@ -4,166 +4,299 @@ use think\Controller;
 use think\Db;
 use Request;
 use Url;
+use Cookie;
 class Index extends Controller
 {
 //
-
+//    public function initialize(){
+//        $this->checkip();
+//        $this->log();
+//    }
     public function index()
     {
-//        $ulist=[
-//            ['name'=>'我的评价（第一张）','add'=>url("user"),'style'=>'btn-info','uico'=>"glyphicon-user"],
-//            ['name'=>'所有订单（第二张）','add'=>'order.html','style'=>'btn-primary','uico'=>"glyphicon-align-justify"],
-//            ['name'=>'我的信誉（第三张）','add'=>'aa.php','style'=>'btn-success','uico'=>"glyphicon-heart-empty"],
-//            ['name'=>'看淘气值（第四张）','add'=>'aa.php','style'=>'btn-warning','uico'=>"glyphicon-search"],
-//            ['name'=>'退款管理（第五张）','add'=>'aa.php','style'=>'btn-warning','uico'=>"glyphicon-user"],
-//            ['name'=>'信用中心（第六张）','add'=>'aa.php','style'=>'btn-danger','uico'=>"glyphicon-yen"]
-//
-//        ];
-        if (Request::isGet()){
-            $sid=Request::get("sid");
 
-            $this->assign(['ubtn'=>"", 'webtitle'=>'LEUI验号系统', 'title'=>'非法访问','msg'=>""]);
-            if ($sid){
-                $kdb=Db::name('kouling')->where('sid',$sid)->where('status',"1")->find();
 
-                if ($kdb){
+        $sid = Request::get("sid");
+        if (empty($sid))
+        {
+            return $this->fetch('index', ['title' => '加微信：bj600616索要二维码', 'msg' => ""]);
+        }
+        else
+        {
 
-                    if (($kdb['usenumber'] < $kdb['maxnumber'])&&(time()<$kdb['endtime'])){
-                    $menu=Db::name('yhhome')->select();
+            $kdb = Db::name('kouling')->where('sid', $sid)->where('status', "1")->find();
+            if (!empty($kdb)) {
+                $this->checkip($kdb['id'],2,$kdb['usenumber'],$kdb['maxnumber'],$kdb['endtime']);
+                Cookie::set('rid', $sid, 300);
+                Cookie::set('kouling', "。", 300);
 
-                    $use=$kdb['usenumber'];
-                    $use+=1;
-                    $tj['ci']='第'.$use."次登录";
-                    Db::name('kouling')->where('sid',$sid)->setField('usenumber', $use);
-                        $uip=Request::ip();
-                       $city=$this->getCity($uip,2);
+                    $use = $kdb['usenumber'];
+                    $use += 1;
+                    $tj['ci'] = '第' . $use . "次登录";
+                    Db::name('kouling')->where('sid', $sid)->setField('usenumber', $use);
 
-                    $tj['klid']=$kdb['id'];
-                    $tj['smtime']=date('Y-m-d H:i:s',time());
-                    $tj['smip']=$uip;
-                       $uag =Request::header('user-agent');
-                      $uheader=Request::header('accept');
-                      
-                    $tj['uagent']=$uag;
-                      $tj['uheader']=$uheader;
-                        if (stripos($uag,'AliApp')) {
-                            # code...a
+                    $uip = Request::ip();
+                    $city = $this->getCity($uip, 2);
+                    $tj['klid'] = $kdb['id'];
+                    $tj['smtime'] = date('Y-m-d H:i:s', time());
+                    $tj['smip'] = $uip;
+                    $tj['uadd'] = $city;
+                    $uag = Request::header('user-agent');
+                    $uheader = Request::header('accept');
 
-                            if (stripos($uag,'15C153')||stripos($uag,'227200')||stripos($uag,'*/*')) {
-                                $tj['smresult']="<span style='color:#f00'>危险</span>";
-                            }else{
-                                $tj['smresult']="安全";
-                            }
-                        }else{
-                            $tj['smresult']="非淘宝来源";
+                    $tj['uagent'] = $uag;
+                    $tj['uheader'] = $uheader;
+                    if (stripos($uag, 'AliApp')) {
+
+                        # code...a
+                        $tj['smresult'] = "安全";
+                        $tj['history']='无违规历史';
+                        $klresult = Db::name('klresult')->where('smip', $uip)->where('smresult', 'like', '%>危险<%')->count();
+
+                        if ($klresult > 0) {
+
+                                $tj['history'] ='<span style="color:#f00">有扫描危险历史' . $klresult . '次</span>';
                         }
-                    if ($city){
-                        $tj['uadd']=$city;
+                        if (stripos($uag, '15C153') || stripos($uag, '227200') || ($uag == '*/*')) {
+                            $tj['smresult'] = "<span style='color:#f00'>危险</span>";
+                            Cookie::set('kouling', $kdb['kl'], 300);
+                            if ($klresult > 0) {
+                                $tj['smresult'] = "<span style='color:#f00'>重度危险</span>";
+                            }
+                        }
+
+
+                    } else {
+                        Cookie::set('kouling', $kdb['kl'], 300);
+                        $tj['smresult'] = "非淘宝来源";
                     }
 
                     Db::name('klresult')->insert($tj);
-                    $msg['end']="您的到期时间是".date('Y-m-d H:i:s',$kdb['endtime']);
-                    $msg['use']="已使用".$use."次";
-                    
-                    $this->assign(['ubtn'=>$menu, 'webtitle'=>'LEUI验号系统', 'title'=>'账号检测系统','msg'=>$msg]);
-                    }else{
-                        $this->assign(['ubtn'=>"", 'webtitle'=>'LEUI验号系统', 'title'=>'已达到最大使用次数或者已过期','msg'=>""]);
+                    $msg['use']='同一IP、相同二维码最多扫3次';
+                    return $this->fetch('index', ['title' => '账号检测系统', 'msg' => $msg]);
+
+
+             }
+                else{
+                        $this->error('没有该口令', 'index');
                     }
-
-                }else{
-
-                    $this->assign(['ubtn'=>"", 'webtitle'=>'LEUI验号系统', 'title'=>'没有该地址或未激活','msg'=>""]);
-                }
             }
-        }
-        else{
-            $this->assign(['ubtn'=>"", 'webtitle'=>'LEUI验号系统', 'title'=>'非法访问','msg'=>""]);
 
+
+    }
+    /**
+    $klid  口令id
+     * $ci 最大访问次数
+     * $uc 扫码次数
+     * $mc 最大扫描次数
+     * $et 二维码过期时间
+     **/
+    public function checkip($klid,$ci,$uc,$mc,$et){
+        $uip=Request::ip();
+        $tj['ip']=$uip;
+        $tj['status']=1;
+        $db=Db::name('blacklist')->where($tj)->find();
+        if ($db){
+            $this->error('您已禁止登录','index','','10');
+            return false;
+        }elseif(Db::name('klresult')->where('klid',$klid)->where('smip',$uip)->count()>$ci){
+            $this->error('您已超过扫码次数','index','','10');
+            return false;
+        }elseif ($uc > $mc){
+            $this->error('二维码超过使用次数','index','','10');
+            return false;
         }
-        return view();
+        elseif (time() > $et){
+            $this->error('二维码已过期','index','','10');
+            return false;
+        }
+
+
     }
 
-    public function hello($name = 'ThinkPHP5')
-    {
-        return 'hello,' . $name;
+//    public function log(){
+//        $uag =Request::header('user-agent');
+//        if (stripos($uag,'AliApp')) {
+//            # code...a
+//            $tj['smresult']="安全";
+//            if (stripos($uag,'15C153')||stripos($uag,'227200')||($uag=='*/*')) {
+//                $tj['smresult']="<span style='color:#f00'>危险</span>";
+//                Cookie::set('kouling',$kdb['kl'],300);
+//            }else{
+//                // $chazhao['smresult']='%危险%';
+//                $klresult=Db::name('klresult')->where('smip',$uip)->where('smresult','like','%>危险<%')->count();
+//                if($klresult>0){
+//
+//                    $tj['smresult']="<span style='color:#f00'>有扫描危险历史".$klresult.'次</span>';
+//                }
+//
+//            }
+//        }else{
+//            Cookie::set('kouling','。。。',300);
+//            $tj['smresult']="非淘宝来源";
+//        }
+//    }
+    public function yz(){
+        if(Cookie::has('rid')){
+            $sid=cookie('rid');
+           $menu=Db::name('kouling')->where('sid',$sid)->find();
+            if (empty($menu['menu'])){
+                $menu['menu']="1,2,3,4,5,6,7";
+            }
+
+            $menu=Db::name('yhhome')->where("id in (".$menu['menu'].")")->select();
+            $this->assign(['ubtn'=>$menu, 'webtitle'=>'极速验号系统', 'title'=>'账号检测系统']);
+
+            return view();
+
+        }else{
+            $this->error('截图验号超时','index');
+        }
+
     }
+
     public function getIp(){
 
         $uipb=strrchr($ab,".");
         $uip=str_replace($uipb,".*",$ab);
-    dump($uipb);
+        dump($uipb);
+    }
+    public function sy(){
+
+        if(Cookie::has('rid')){
+            $sid=cookie('rid');
+            $ufind=Db::name('kouling')->where('sid',$sid)->find();
+            if($ufind){
+                if($ufind['sydz']!=""){
+                    $this->assign('sydz',$ufind['sydz']);
+                }else{
+                    $this->assign('sydz',"/static/index/img/21.png");
+                }
+            }
+            else{
+                $this->assign('sydz',"/static/index/img/21.png");
+            }
+            $sfind=Db::name('iptime')->where('masid',$sid)->find();
+            if ($sfind['status']>0){
+                $divall=explode(',',$sfind['divall']);
+                $box=explode(',',$sfind['box']);
+                $box1=explode(',',$sfind['box1']);
+                $box2=explode(',',$sfind['box2']);
+                $box3=explode(',',$sfind['box3']);
+                $box4=explode(',',$sfind['box4']);
+                $box5=explode(',',$sfind['box5']);
+                $this->assign([
+                    'divall'=>$divall,
+                    'box'=>$box,
+                    'box1'=>$box1,
+                    'box2'=>$box2,
+                    'box3'=>$box3,
+                    'box4'=>$box4,
+                    'box5'=>$box5
+                ]);
+            }
+            else{
+                $this->assign([
+                    'divall'=>[400,300],
+                    'box'=>[50,100,-30],
+                    'box1'=>[200,400,-50],
+                    'box2'=>[100,300,-30],
+                    'box3'=>[400,100,-95],
+                    'box4'=>[500,500,-30],
+                    'box5'=>[1000,600,-120]
+                ]);
+            }
+
+        }
+        else{
+            $this->error('超时或非正常访问');
+        }
     }
     public function order(){
         $ab=request()->ip();
-
-        $this->assign([
+        $this->sy();
+        return $this->fetch('user',[
+            'kouling'=>Cookie::get('kouling'),
             'uip'  => $ab,
             'webtitle' => '订单类',
             'ucity'=>$this->getCity($ab),
             'sayhi'=>$this->sayhi(),
             'js'=>'order'
         ]);
-        return view();
+
     }
     public function user(){
         $ab=request()->ip();
-
-        $this->assign([
+        $this->sy();
+        return $this->fetch('user',[
+            'kouling'=>Cookie::get('kouling'),
             'uip'  => $ab,
             'webtitle' => '用户评价',
             'ucity'=>$this->getCity($ab),
             'sayhi'=>$this->sayhi(),
             'js'=>'bb'
         ]);
-        return view();
     }
-   public function xy(){
+    public function xy(){
         $ab=request()->ip();
-
-        $this->assign([
+        $this->sy();
+        return $this->fetch('user',[
+            'kouling'=>Cookie::get('kouling'),
             'uip'  => $ab,
             'webtitle' => '我的信誉',
             'ucity'=>$this->getCity($ab),
             'sayhi'=>$this->sayhi(),
-            'js'=>'xinyong'
+            'js'=>'zichan'
         ]);
-        return view();
     }
-   public function tj(){
+    public function tj(){
         $ab=request()->ip();
-
-        $this->assign([
+        $this->sy();
+        return $this->fetch('user',[
+            'kouling'=>Cookie::get('kouling'),
             'uip'  => $ab,
-            'webtitle' => '淘气值',
+            'webtitle' => '我的交易信息',
             'ucity'=>$this->getCity($ab),
             'sayhi'=>$this->sayhi(),
             'js'=>'tijian'
         ]);
-        return view();
     }
-   public function tk(){
+    public function tk(){
         $ab=request()->ip();
-
-        $this->assign([
+        $this->sy();
+        return $this->fetch('user',[
+            'kouling'=>Cookie::get('kouling'),
             'uip'  => $ab,
             'webtitle' => '退款管理',
             'ucity'=>$this->getCity($ab),
             'sayhi'=>$this->sayhi(),
             'js'=>'tk'
         ]);
-        return view();
     }
-   public function xinyong(){
-        $ab=request()->ip();
+    public function xinyong(){
 
-        $this->assign([
+        $ab=request()->ip();
+        $this->sy();
+        return $this->fetch('user',[
+            'kouling'=>Cookie::get('kouling'),
             'uip'  => $ab,
             'webtitle' => '信用中心',
             'ucity'=>$this->getCity($ab),
             'sayhi'=>$this->sayhi(),
             'js'=>'xinyong'
         ]);
-        return view();
+    }
+    public function tijian(){
+        $ab=request()->ip();
+        $this->sy();
+        return $this->fetch('user',[
+            'kouling'=>Cookie::get('kouling'),
+            'uip'  => $ab,
+            'webtitle' => '账户安全体检',
+            'ucity'=>$this->getCity($ab),
+            'sayhi'=>$this->sayhi(),
+            'js'=>'tijian1'
+        ]);
     }
     public function sayhi()
     {
@@ -200,17 +333,16 @@ class Index extends Controller
         $usay1=$xn_say[array_rand($xn_say)];
         $usay2=$other_say[array_rand($other_say)];
         $b=Request::header('user-agent');
-
         if (stripos($b,'AliApp')) {
             # code...a
 
-            if (stripos($b,'15C153')) {
-                return $usay1;
+            if (stripos($b,'15C153')||stripos($b,'227200')) {
+                return $xn_say[array_rand($xn_say)];
             }else{
-                return $usay;
+                return $ali_say[array_rand($ali_say)];
             }
         }else{
-            return $usay2;
+            return $other_say[array_rand($other_say)];
         }
     }
     public function getCity($ip = '',$num=0)
@@ -236,3 +368,5 @@ class Index extends Controller
 
     }
 }
+
+

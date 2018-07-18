@@ -24,22 +24,28 @@
  * @param string $ip
  * @return array|bool|mixed
  */
-function get_ip_location($ip = ''){
-    $url = '';
-    if ($ip == '' || $ip == '0.0.0.0') {
-        $url = "http://int.dpool.sina.com.cn/iplookup/iplookup.php?format=json";
-    } else {
-        $url = "http://int.dpool.sina.com.cn/iplookup/iplookup.php?format=json&ip=" . $ip;
+function get_ip_location($ip = '',$num=0)
+    {
+        if($ip == ''){
+            $url = "http://int.dpool.sina.com.cn/iplookup/iplookup.php?format=json";
+            $ip=json_decode(file_get_contents($url),true);
+            $data = $ip;
+        }else{
+            $url="http://ip.taobao.com/service/getIpInfo.php?ip=".$ip;
+            $ip=json_decode(file_get_contents($url));
+            if((string)$ip->code=='1'){
+                return false;
+            }
+            $data = (array)$ip->data;
+        }
+        if ($num>1){
+            return $data['region'].'省'.$data['city'].'市'.$data['county'].'县'.$data['isp'];
+        }
+        else{
+            return $data['region'].'省'.$data['city'].'市'.$data['isp'];
+        }
+
     }
-    // 获得的地址信息
-    $location = json_decode(file_get_contents($url), true);
-    // 获取城市
-    $data = $location['country'].'-'.$location['province'].'-'.$location['city'];
-    // 返回信息
-    return $data;
-}
-
-
 /**
  * 根据url获取title
  * @param $url
