@@ -40,6 +40,19 @@
         .iconfont{
             font-size: 30px;
         }
+        .cont_li{
+            display: flex;
+            line-height: 30px;
+            justify-content:space-between;
+        }
+        .cont_li a{
+            color: #1E9FFF;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .cont_li span{
+            color: #c9c9c9;
+        }
     </style>
 </head>
 <body>
@@ -47,32 +60,41 @@
     <div class="row top_box">
         <div class="col-md-3 col-xs-6">
             <div class="ucont bg-warning text-warning">
-                <small class="ip_tp">收录使用P图软件IP次数</small>
-                <div class="text-center ip">21640次</div>
+                <small class="ip_tp">收录使用P图软件IP总次数</small>
+                <div class="text-center ip">{$allip.all}次</div>
                 <div class="text-right ip_bt">  <span class="icon iconfont icon-77"></span></div>
             </div>
         </div>
         <div class="col-md-3 col-xs-6">
             <div class="ucont bg-success text-success">
-                <small class="ip_tp">收录使用P图软件IP次数</small>
-                <div class="text-center ip">21640次</div>
+                <small class="ip_tp">收录重度危险IP总次数</small>
+                <div class="text-center ip">{$allip.allwx}次</div>
                 <div class="text-right ip_bt">  <span class="icon iconfont icon-77"></span></div>
             </div>
         </div>
         <div class="col-md-3 col-xs-6">
             <div class="ucont bg-info text-info">
-                <small class="ip_tp">收录使用P图软件IP次数</small>
-                <div class="text-center ip" style="color:#2B2E37;">21640次</div>
+                <small class="ip_tp">24小时内新增P图IP</small>
+                <div class="text-center ip" style="color:#2B2E37;">{$allip.dayip}次</div>
                 <div class="text-right ip_bt">  <span class="icon iconfont icon-77"></span></div>
             </div>
         </div>
         <div class="col-md-3 col-xs-6">
             <div class="ucont bg-danger text-danger">
-                <small class="ip_tp">收录使用P图软件IP次数</small>
-                <div class="text-center ip">21640次</div>
+                <small class="ip_tp">24时内重度危险IP</small>
+                <div class="text-center ip">{$allip.daywx}次</div>
                 <div class="text-right ip_bt">  <span class="icon iconfont icon-77"></span></div>
             </div>
         </div>
+    </div>
+    <div class="row">
+        <ol class="col-md-6 cont_ul">
+        {volist name="list" id="vo"}
+
+            <li class="cont_li"><a href="{:url('cont')}?id={$vo.id}" target="_blank">{$vo.title}</a><span class="text-right">{$vo.time|date='Y-m-d H:i'}</span></li>
+
+        {/volist}
+        </ol>
     </div>
 </div>
 <script type="text/javascript" charset="utf8" src="http://code.jquery.com/jquery-1.10.2.min.js"></script>

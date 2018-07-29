@@ -83,28 +83,19 @@ class Verify extends AdminBase
         }
      
     }
-    public function qrcode($urla){
-        header("Content-type: text/html; charset=utf-8");
-        $a=Env::get('root_path') . 'vendor/';
-        require_once $a.'phpqrcode/phpqrcode.php';
-        //生成二维码图片
-        $object = new \QRcode();
-        $url=$urla;//网址或者是文本内容
-        $level=3;
-        $size=7;
-        $errorCorrectionLevel =intval($level) ;//容错级别
-        $matrixPointSize = intval($size);//生成图片大小
-        $object->png($url, false, $errorCorrectionLevel, $matrixPointSize, 2);
-       // $errorLevel = "L";
-//定义生成图片宽度和高度;默认为3
-//        $size = "5";
-//        $content="微信公众平台：思维与逻辑;公众号:siweiyuluoji";
-//调用QRcode类的静态方法png生成二维码图片//
-  //      $object::png($content, false, $errorLevel, $size);
-//生成网址类型
-//        $url=$urla;
-//        $object::png($url, false, $errorLevel, $size);
-        exit();
+    public function qrcode(){
+
+        if (Request::isGet()) {
+            $sid = Request::Get("sid");
+            return $this->fetch('qrcode',[
+                'sid'=>$sid
+            ]);
+        }else{
+            return $this->fetch('qrcode',[
+                'sid'=>""
+            ]);
+        }
+
     }
 
     public function kladmin(){//口令管理
@@ -140,16 +131,7 @@ class Verify extends AdminBase
         // 返回数据
         $this->ajaxReturn($data);
     }
-    public function editKl(){//二维码生成
-        if (Request::isGet()){
-            $sid=Request::Get("sid");
-            $url=Request::root(true);
-            $this->qrcode($url.'?sid='.$sid);
-        }
-        else{
-            echo "暂时没有二维码";
-        }
-    }
+
     public function klresult(){
 //        $uid=session('vip_admin.id');
 //        $show=Db::name('kouling')
@@ -268,5 +250,17 @@ class Verify extends AdminBase
             $this->ajaxReturn($data);
         }
 
+    }
+    public function serch(){
+        return $this->fetch();
+    }
+    public function serchresult(){
+        if (Request::isPost()){
+            $kl=Request::post('kl');
+            $data['status']=1;
+            $data['msg']="查询成功";
+            $data['kl']=$kl;
+            $this->ajaxReturn($data);
+        }
     }
 }

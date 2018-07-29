@@ -1,4 +1,4 @@
-<?php /*a:1:{s:42:"../html_template/admin/system/gonggao.html";i:1531821549;}*/ ?>
+<?php /*a:1:{s:42:"../html_template/admin/system/gonggao.html";i:1532512651;}*/ ?>
 <!doctype html>
 <html>
 <head>
@@ -41,6 +41,19 @@
         .iconfont{
             font-size: 30px;
         }
+        .cont_li{
+            display: flex;
+            line-height: 30px;
+            justify-content:space-between;
+        }
+        .cont_li a{
+            color: #1E9FFF;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .cont_li span{
+            color: #c9c9c9;
+        }
     </style>
 </head>
 <body>
@@ -48,32 +61,41 @@
     <div class="row top_box">
         <div class="col-md-3 col-xs-6">
             <div class="ucont bg-warning text-warning">
-                <small class="ip_tp">收录使用P图软件IP次数</small>
-                <div class="text-center ip">21640次</div>
+                <small class="ip_tp">收录使用P图软件IP总次数</small>
+                <div class="text-center ip"><?php echo htmlentities($allip['all']); ?>次</div>
                 <div class="text-right ip_bt">  <span class="icon iconfont icon-77"></span></div>
             </div>
         </div>
         <div class="col-md-3 col-xs-6">
             <div class="ucont bg-success text-success">
-                <small class="ip_tp">收录使用P图软件IP次数</small>
-                <div class="text-center ip">21640次</div>
+                <small class="ip_tp">收录重度危险IP总次数</small>
+                <div class="text-center ip"><?php echo htmlentities($allip['allwx']); ?>次</div>
                 <div class="text-right ip_bt">  <span class="icon iconfont icon-77"></span></div>
             </div>
         </div>
         <div class="col-md-3 col-xs-6">
             <div class="ucont bg-info text-info">
-                <small class="ip_tp">收录使用P图软件IP次数</small>
-                <div class="text-center ip" style="color:#2B2E37;">21640次</div>
+                <small class="ip_tp">24小时内新增P图IP</small>
+                <div class="text-center ip" style="color:#2B2E37;"><?php echo htmlentities($allip['dayip']); ?>次</div>
                 <div class="text-right ip_bt">  <span class="icon iconfont icon-77"></span></div>
             </div>
         </div>
         <div class="col-md-3 col-xs-6">
             <div class="ucont bg-danger text-danger">
-                <small class="ip_tp">收录使用P图软件IP次数</small>
-                <div class="text-center ip">21640次</div>
+                <small class="ip_tp">24时内重度危险IP</small>
+                <div class="text-center ip"><?php echo htmlentities($allip['daywx']); ?>次</div>
                 <div class="text-right ip_bt">  <span class="icon iconfont icon-77"></span></div>
             </div>
         </div>
+    </div>
+    <div class="row">
+        <ol class="col-md-6 cont_ul">
+        <?php if(is_array($list) || $list instanceof \think\Collection || $list instanceof \think\Paginator): $i = 0; $__LIST__ = $list;if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$vo): $mod = ($i % 2 );++$i;?>
+
+            <li class="cont_li"><a href="<?php echo url('cont'); ?>?id=<?php echo htmlentities($vo['id']); ?>" target="_blank"><?php echo htmlentities($vo['title']); ?></a><span class="text-right"><?php echo htmlentities(date('Y-m-d H:i',!is_numeric($vo['time'])? strtotime($vo['time']) : $vo['time'])); ?></span></li>
+
+        <?php endforeach; endif; else: echo "" ;endif; ?>
+        </ol>
     </div>
 </div>
 <script type="text/javascript" charset="utf8" src="http://code.jquery.com/jquery-1.10.2.min.js"></script>

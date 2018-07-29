@@ -38,13 +38,13 @@
                     <a class="layui-btn radius btn-flush" id="btn-delete-flush"> <i class="layui-icon">&#x1002;</i>刷新页面</a>
                     <!--<a class="layui-btn btn-add btn-default" id="btn-add-article">发布文章</a>-->
                 </span>
-                <form class="fr layui-form">
-                    <span class="layui-form-label">查询账号：</span>
-                    <div class="layui-input-inline">
-                        <input name="search" type="text" autocomplete="off" placeholder="查询账号" class="layui-input" />
-                    </div>
-                    <button type="button" class="layui-btn mgl-20" lay-submit="" lay-filter="search">查询</button>
-                </form>
+                <!--<form class="fr layui-form">-->
+                    <!--<span class="layui-form-label">查询账号：</span>-->
+                    <!--<div class="layui-input-inline">-->
+                        <!--<input name="search" type="text" autocomplete="off" placeholder="查询账号" class="layui-input" />-->
+                    <!--</div>-->
+                    <!--<button type="button" class="layui-btn mgl-20" lay-submit="" lay-filter="search">查询</button>-->
+                <!--</form>-->
             </div>
 
             <table id="dateTable" class="layui-table layui-form">
@@ -57,6 +57,7 @@
                     <th>描述</th>
                     <th>创建时间</th>
                     <th>到期时间</th>
+                    <th>口令地址</th>
                     <th>状态</th>
                     <th>操作</th>
                 </tr>
@@ -105,7 +106,7 @@
             "autoWidth": true,                     // 自适应宽度
             "stateSave": true,                      // 刷新后保存页数
             "order": [[ 5, "desc" ]],               // 排序
-            "searching": false,                     // 本地搜索
+            "searching": true,                     // 本地搜索
             "info": true,                           // 控制是否显示表格左下角的信息
             "stripeClasses": ["odd", "even"],       // 为奇偶行加上样式，兼容不支持CSS伪类的场合
             "aoColumnDefs": [{                      // 指定列不参与排序
@@ -131,6 +132,9 @@
                 {data: 'beizhu'},
                 {data: 'createtime'},
                 {data: 'endtime'},
+                {data: function(obj){
+                       return "http://www.sd1888.cn/?sid="+obj.sid;
+                    }},
                 {data: function(obj){
                         if(obj.status=="1"){
                             return '<input type="checkbox" checked name="open" lay-skin="switch" data-id="'+obj.id+'" data-status="'+obj.status+'" lay-filter="status" title="开关" lay-text="ON|OFF" />';
@@ -216,8 +220,8 @@
                 title: '二维码生成',
                 shadeClose: true,
                 shade: 0.8,
-                area: ['400px', '500px'],
-                content: "{:url('editKl')}?sid="+$(this).attr('data-id')
+                area: ['320px', '460px'],
+                content: "{:url('qrcode')}?sid="+$(this).attr('data-id')
             });
             // 更新渲染
             form.render();

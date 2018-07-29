@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <title>layui.form小例子</title>
     {css href="__STATIC__/__AF__/layui/css/layui.css,__STATIC__/__AC__/style.css" /}
-        <link rel="icon" href="__STATIC__/__AI__/code.png">
+    <link rel="icon" href="__STATIC__/__AI__/code.png">
 </head>
 <body>
 <h1 style="font-size: 20px;text-align: center;line-height: 50px;">生成口令</h1>
@@ -27,13 +27,13 @@
     </div>
     <div class="layui-form-item">
         <label class="layui-form-label">自定义水印</label>
-         <div class="layui-input-block">
+        <div class="layui-input-block">
 
-               <input type="file"  lay-type="images" class="layui-upload-file" id=uimg>
-             <input type="text" name="sydz" id="shuiyin"  placeholder="水印地址" autocomplete="off" readonly="readonly" class="layui-input">
+            <input type="file"  lay-type="images" class="layui-upload-file" id=uimg>
+            <input type="text" name="sydz" id="shuiyin"  placeholder="水印地址" autocomplete="off" readonly="readonly" class="layui-input">
 
-         </div>
-        
+        </div>
+
     </div>
     <div class="layui-form-item layui-form-text">
         <label class="layui-form-label" id="jiance">检测选项</label>
@@ -43,8 +43,13 @@
         <input type="checkbox" name="menu[xx]" title="交易信息" lay-skin="primary" lay-filter="menu"  checked value="4">
         <input type="checkbox" name="menu[zx]" title="信用中心" lay-skin="primary" lay-filter="menu"  checked value="5">
         <input type="checkbox" name="menu[tk]" title="退款管理" lay-skin="primary" lay-filter="menu"  checked value="6">
-        <input type="checkbox" name="menu[tj]" title="体检中心（无水印）" lay-skin="primary" lay-filter="menu"  checked value="7">
-
+        <input type="checkbox" name="menu[tj]" title="体检中心(无水印)" lay-skin="primary" lay-filter="menu"  value="7">
+        <input type="checkbox" name="menu[tl]" title="淘龄(无水印)" lay-skin="primary" lay-filter="menu"  value="8">
+        <input type="checkbox" name="menu[zj]" title="足迹(无水印)" lay-skin="primary" lay-filter="menu"  value="9">
+        <input type="checkbox" name="menu[gwc]" title="购物车" lay-skin="primary" lay-filter="menu"   value="10">
+        <input type="checkbox" name="menu[scj]" title="收藏夹" lay-skin="primary" lay-filter="menu"  value="11">
+        <input type="checkbox" name="menu[my]" title="我的淘宝(无水印)" lay-skin="primary" lay-filter="menu"  value="12">
+        <input type="checkbox" name="menu[mqz]" title="淘气值(无水印)" lay-skin="primary" lay-filter="menu"  value="13">
     </div>
     <div class="layui-form-item layui-form-text">
         <label class="layui-form-label">同一IP扫描次数</label>
@@ -86,14 +91,14 @@
         var form = layui.form(), $ = layui.jquery,layer = layui.layer;
         layui.upload({
             elem:'#uimg',
-         url: "{:url('shuiyin')}",
-          unwrap: false,
-          method:'post',
-         success: function(res){
-           //  console.log(res); //上传成功返回值，必须为json格式
-             layer.msg(res.msg,{time:'2000'});
-             $('#shuiyin').val("/uploads/"+res.src);
-             $('body').css("background","url('/uploads/"+res.src+"')");
+            url: "{:url('shuiyin')}",
+            unwrap: false,
+            method:'post',
+            success: function(res){
+                //  console.log(res); //上传成功返回值，必须为json格式
+                layer.msg(res.msg,{time:'2000'});
+                $('#shuiyin').val("/uploads/"+res.src);
+                $('body').css("background","url('/uploads/"+res.src+"')");
 
             }
 
@@ -119,13 +124,14 @@
         // });
 
         form.on('submit(sub)', function (data) {
+            layer.confirm('确定要提交吗?', {icon: 3, title:'确定要提交吗'}, function(index){
             // 提交到方法 默认为本身
             $.post("{:url('admin/Verify/index')}",data.field,function(res){
                 // 判断是否成功
 
                 if(res.status > 0){
                     // 添加成功跳转
-                    layer.msg(res.msg,{time:1800},function(){
+                    layer.msg(res.msg,{time:500},function(){
                         // 关闭父窗口
 
                         // 跳转
@@ -133,9 +139,12 @@
                     })
                 }else{
                     // 失败则提示
-                     layer.msg(res.msg);
-                    console.log(res.cont);
+                    layer.msg(res.msg);
+                   // console.log(res.cont);
                 }
+
+            });
+                layer.close(index);
             });
             return false;
         });

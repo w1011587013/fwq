@@ -74,17 +74,7 @@
     <!--<input type="checkbox" lay-skin="switch">-->
     <!--</div>-->
     <!--</div>-->
-    {if isset($jb)}
-    {else /}
-    <div class="layui-form-item">
-        <label class="layui-form-label">是否禁止登陆</label>
-        <div class="layui-input-block">
 
-            <input id="status" name="status" type="checkbox" lay-skin="switch" lay-filter="zt" lay-text="ON|OFF" checked value="1"/>
-
-        </div>
-    </div>
-    {/if}
     <!--<div class="layui-form-item">
         <label class="layui-form-label">截图证据</label>
         <div class="layui-input-block">
@@ -97,7 +87,7 @@
     </div>-->
 
     <div class="layui-form-item layui-form-text">
-        <label class="layui-form-label">请填写描述</label>
+        <label class="layui-form-label">请填写受害经历</label>
         <div class="layui-input-block">
             <textarea placeholder="请输入内容" lay-verify="required"  required class="layui-textarea" name="beizhu"></textarea>
         </div>
@@ -114,7 +104,7 @@
     {else /}
     <div class="layui-form-item">
         <div class="layui-input-block">
-            <button class="layui-btn"  lay-filter="sub" name="sub" lay-submit="">生成</button>
+            <button class="layui-btn"  lay-filter="sub" name="sub" lay-submit="">提交举报</button>
             <button type="reset" class="layui-btn layui-btn-primary">重置</button>
         </div>
     </div>
@@ -163,19 +153,16 @@
 
                 if(res.status > 0){
                     // 添加成功跳转
-                    layer.msg(res.msg,{time:1800},function(){
+                    layer.msg(res.msg,{time:1000},function(){
                         // 关闭父窗口
-
                         // 跳转
-                        parent.layer.closeAll();
-
-
+                        window.location.href = "{:url('admin/Blacklist/add')}";
 
                     })
                 }else{
                     // 失败则提示
                     layer.msg(res.msg);
-                    console.log(res.cont);
+
                 }
             });
             return false;

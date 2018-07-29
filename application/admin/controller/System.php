@@ -4,6 +4,7 @@ use app\common\controller\AdminBase;
 
 use Config;
 use Db;
+use think\Request;
 
 class System extends AdminBase {
 
@@ -41,12 +42,102 @@ class System extends AdminBase {
 
     }
     public function gonggao(){
-        $wx=Db('klresult')->where('smresult','like','%危险%')->count();
+        $allip['all']=10280;
+        $allip['allwx']=1921;
+        $allip['dayip']=226;
+        $allip['daywx']=58;
+        $db=Db::name('news')->field('id,title,time')->order('id','desc')->limit(10)->select();
         return $this->fetch('gonggao',[
-            'allip'
+            'allip'=>$allip,
+            'list'=>$db
         ]);
     }
+    public function newsadd(){
+        $post=$this->request->post();
+        if (!empty($post)){
+            $post['time']=time();
+            $post['content']=$_POST['content'];
+            $tj=Db::name('news')->insert($post);
+            if ($tj>0){
+                $data['msg']='添加成功';
+                $data['status']=1;
+                $data['cont']=$post;
+                $this->ajaxReturn($data);
+            }
+            else{
+                $data['status']=0;
+                $data['msg']='添加失败';
+                $this->ajaxReturn($data);
+            }
 
+        }else{
+
+            return $this->fetch();
+        }
+    }
+    public function newsadmin(){
+
+        if ($this->request->isPost()){
+            $db=Db::name('news')->select();
+
+            $this->ajaxReturn(['data'=>$db]);
+        }
+        else{
+            return $this->fetch('newsadmin');
+        }
+
+    }
+    public function cont(){
+        $id=$this->request->get('id');
+        $from=$this->request->get('from');
+        dump($from);
+        if (!empty($id)){
+            $id=intval($id);
+            $db=Db::name('news')->find($id);
+            return $this->fetch('cont',[
+                'db'=>$db,
+                'from'=>$from
+            ]);
+
+        }
+        else{
+            $this->error('没有该页面');
+        }
+    }
+    public function editnews(){
+        $id=$this->request->get('id');
+        $from=$this->request->get('from');
+        if (!empty($id)){
+
+            $id=intval($id);
+            $db=Db::name('news')->find($id);
+            return $this->fetch('editnews',[
+                'db'=>$db
+            ]);
+
+        }
+        else{
+            $this->error('没有该页面');
+        }
+    }
+    public function imgupload(){
+        $file = request()->file('upload');
+        // 移动到框架应用根目录/uploads/ 目录下
+        $info = $file->move( './img/');
+        if($info){
+            // 成功上传后 获取上传信息
+            // 输出 jpg
+            $aa=$info->getSaveName();
+            $bb='/img/'.$aa;
+          //  $callback = Request::post("CKEditorFuncNum");
+            $data['url']=$bb;
+            $data['uploaded']='上传成功';
+            $data['filename']=$bb;
+            $this->ajaxReturn( $data );
+        }else{
+            $this->ajaxReturn("错误");
+        }
+    }
 
     // 基本配置
     public function config(){

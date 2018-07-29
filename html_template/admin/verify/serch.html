@@ -1,0 +1,124 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>layui.form小例子</title>
+    {css href="__STATIC__/__AF__/layui/css/layui.css,__STATIC__/__AC__/style.css" /}
+    <link rel="icon" href="__STATIC__/__AI__/code.png">
+    <style>
+        .ucont{
+            position: relative;
+            overflow: hidden;
+            height: 800px;
+            width: 95%;
+        }
+        .uframe{
+            width: 100%;height: 800px;
+            position: absolute;
+            top: -150px;
+        }
+    </style>
+</head>
+<body>
+<h1 style="font-size: 20px;text-align: center;line-height: 50px;">实时关键字排名查询</h1>
+<form class="layui-form" method="post" action=""> <!-- 提示：如果你不想用form，你可以换成div等任何一个普通元素 -->
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">关键词</label>
+        <div class="layui-input-inline" style="width: 400px;">
+            <input type="text" name="kl" required lay-verify="required|kouling"  placeholder="请输入您要查询的关键字" autocomplete="off" class="layui-input">
+        </div>
+        <div class="layui-input-inline">
+            <button class="layui-btn"  lay-filter="sub" name="sub" lay-submit="">查询</button>
+            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+        </div>
+    </div>
+
+
+    <!-- 更多表单结构排版请移步文档左侧【页面元素-表单】一项阅览 -->
+</form>
+<div class="ucont">
+<iframe src="https://s.taobao.com/search?ie=utf8&tab=vsearch&initiative_id=staobaoz_20180514&js=1&imgfile=&q=%E6%B0%B4%E5%BC%B9%E6%9E%AA&suggest=history_2&_input_charset=utf-8
+&wq=&suggest_query=&source=suggest&sort=renqi-desc&bcoffset=0&p4ppushleft=%2C44&s=0local.dianshangji.com%2Fvisualstat.html"  class="uframe">
+
+</iframe>
+    <div class="ucontbg"></div>
+</div>
+</body>
+<script type="text/javascript" charset="utf8" src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+
+{js href="__STATIC__/__AF__/layui/layui.js"}
+<script>
+    layui.use(['form','upload','layer'],function(){
+        var form = layui.form(), $ = layui.jquery,layer = layui.layer;
+        layui.upload({
+            elem:'#uimg',
+            url: "{:url('shuiyin')}",
+            unwrap: false,
+            method:'post',
+            success: function(res){
+                //  console.log(res); //上传成功返回值，必须为json格式
+                layer.msg(res.msg,{time:'2000'});
+                $('#shuiyin').val("/uploads/"+res.src);
+                $('body').css("background","url('/uploads/"+res.src+"')");
+
+            }
+
+        });
+        // 登录表单验证
+        form.verify({
+            kouling: function(value){ //value：表单的值、item：表单的DOM对象
+                if(!new RegExp("^[a-zA-Z0-9_\u4e00-\u9fa5\\s·]+$").test(value)){
+                    return '关键字不能有特殊字符';
+                }
+                if(/(^\_)|(\__)|(\_+$)/.test(value)){
+                    return '关键字首尾不能出现下划线\'_\'';
+                }
+                if(/^\d+\d+\d$/.test(value)){
+                    return '关键字不能全为数字';
+                }
+            },
+            beizhu: function (value) {
+                if (value == "") {
+                    return "请输入备注";
+                }
+            }
+
+        });
+        // form.on('checkbox(menu)', function(data){
+        //     console.log(data.elem); //得到checkbox原始DOM对象
+        //     console.log(data.elem.checked); //是否被选中，true或者false
+        //
+        // });
+
+        form.on('submit(sub)', function (data) {
+            // 提交到方法 默认为本身
+            $.post("{:url('admin/Verify/serchresult')}",data.field,function(res){
+                // 判断是否成功
+
+                if(res.status > 0){
+                    // 添加成功跳转
+                    layer.msg(res.msg,{time:500},function(){
+                        var key=res.kl;
+                        var bb='<iframe src="https://s.taobao.com/search?ie=utf8&tab=vsearch&initiative_id=staobaoz_20180514&js=1&imgfile=&q='+key+'&suggest=history_2&_input_charset=utf-8\n' +
+                            '&wq=&suggest_query=&source=suggest&sort=renqi-desc&bcoffset=0&p4ppushleft=%2C44&s=0local.dianshangji.com%2Fvisualstat.html"  class="uframe">\n' +
+                            '\n' +
+                            '</iframe>';
+                        console.log(bb);
+                        $('.ucont').html(bb);
+
+                    })
+                }else{
+                    // 失败则提示
+                    layer.msg(res.msg);
+
+                }
+            });
+            return false;
+        });
+        //各种基于事件的操作，下面会有进一步介绍
+    });
+
+</script>
+</body>
+</html>

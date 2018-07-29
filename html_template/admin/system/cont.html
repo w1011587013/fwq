@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{$db.title}_悟空验号</title>
+    <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<style>
+    h1{
+    text-align: center;
+}
+.cont{
+    padidng-top:30px;
+}
+</style>
+</head>
+<body>
+{if($from == "news")}
+<a href="javascript::">返回上一页</a>
+{else /}
+{/if}
+<div class="container">
+<h1>{$db.title}<small><br>发布时间：{$db.time|date='Y-m-d h:i:s'}</small></h1>
+
+<div class="cont">
+    {$db.content|raw}
+</div>
+</div>
+</body>
+</html>

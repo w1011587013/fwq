@@ -30,57 +30,58 @@ class Index extends Controller
                 Cookie::set('rid', $sid, 300);
                 Cookie::set('kouling', "。", 300);
 
-                    $use = $kdb['usenumber'];
-                    $use += 1;
-                    $tj['ci'] = '第' . $use . "次登录";
-                    Db::name('kouling')->where('sid', $sid)->setField('usenumber', $use);
+                $use = $kdb['usenumber'];
+                $use += 1;
+                $tj['ci'] = '第' . $use . "次登录";
+                Db::name('kouling')->where('sid', $sid)->setField('usenumber', $use);
 
-                    $uip = Request::ip();
-                    $city = $this->getCity($uip, 2);
-                    $tj['klid'] = $kdb['id'];
-                    $tj['smtime'] = date('Y-m-d H:i:s', time());
-                    $tj['smip'] = $uip;
-                    $tj['uadd'] = $city;
-                    $uag = Request::header('user-agent');
-                    $uheader = Request::header('accept');
+                $uip = Request::ip();
+                $city = $this->getCity($uip, 2);
+                $tj['klid'] = $kdb['id'];
+                $tj['smtime'] = date('Y-m-d H:i:s', time());
+                $tj['smip'] = $uip;
+                $tj['uadd'] = $city;
+                $uag = Request::header('user-agent');
+                $uheader = Request::header('accept');
 
-                    $tj['uagent'] = $uag;
-                    $tj['uheader'] = $uheader;
-                    if (stripos($uag, 'AliApp')) {
+                $tj['uagent'] = $uag;
+                $tj['uheader'] = $uheader;
+                if (stripos($uag, 'AliApp')) {
 
-                        # code...a
-                        $tj['smresult'] = "安全";
-                        $tj['history']='无违规历史';
-                        $klresult = Db::name('klresult')->where('smip', $uip)->where('smresult', 'like', '%>危险<%')->count();
+                    # code...a
+                    $tj['xinghao']=$this->jc($uag);
+                    $tj['smresult'] = "手机淘宝";
+                    $tj['history']='无违规历史';
+                    $klresult = Db::name('klresult')->where('smip', $uip)->where('smresult', 'like', '%>危险<%')->count();
 
-                        if ($klresult > 0) {
+                    if ($klresult > 0) {
 
-                                $tj['history'] ='<span style="color:#f00">有扫描危险历史' . $klresult . '次</span>';
-                        }
-                        if (stripos($uag, '15C153') || stripos($uag, '227200') || ($uag == '*/*')) {
-                            $tj['smresult'] = "<span style='color:#f00'>危险</span>";
-                            Cookie::set('kouling', $kdb['kl'], 300);
-                            if ($klresult > 0) {
-                                $tj['smresult'] = "<span style='color:#f00'>重度危险</span>";
-                            }
-                        }
-
-
-                    } else {
+                        $tj['history'] ='<span style="color:#f00">有扫描危险历史' . $klresult . '次</span>';
+                    }
+                    if (stripos($uag, '15C153') || (stripos($uag, '227200') and ($uheader == '*/*'))) {
+                        $tj['smresult'] = "<span style='color:#f00'>危险</span>";
                         Cookie::set('kouling', $kdb['kl'], 300);
-                        $tj['smresult'] = "非淘宝来源";
+                        if ($klresult > 0) {
+                            $tj['smresult'] = "<span style='color:#f00'>重度危险</span>";
+                        }
                     }
 
-                    Db::name('klresult')->insert($tj);
-                    $msg['use']='同一IP、相同二维码最多扫3次';
-                    return $this->fetch('index', ['title' => '账号检测系统', 'msg' => $msg]);
+
+                } else {
+                    Cookie::set('kouling', $kdb['kl'], 300);
+                    $tj['smresult'] = "非淘宝来源";
+                }
+
+                Db::name('klresult')->insert($tj);
+                $msg['use']='同一IP、相同二维码最多扫3次';
+                return $this->fetch('index', ['title' => '账号检测系统', 'msg' => $msg]);
 
 
-             }
-                else{
-                        $this->error('没有该口令', 'index');
-                    }
             }
+            else{
+                $this->error('没有该口令', 'index');
+            }
+        }
 
 
     }
@@ -91,6 +92,31 @@ class Index extends Controller
      * $mc 最大扫描次数
      * $et 二维码过期时间
      **/
+    public function jc($uag){
+
+        $a=strrpos($uag,"zh-CN;");
+        $b=strpos($uag,"Build");
+        $c=strrpos($uag,"iPhone");
+        $d=strpos($uag,"like");
+        $e=strrpos($uag,"Android");
+
+
+        if ($a and $b){
+
+            $end=substr($uag,$a,$b-$a);
+            return  $result=substr($end,6);
+        }elseif($c and $d){
+
+            return   $result=substr($uag,$c,$d-$c);
+        }
+        elseif($e and $b){
+
+            $end=substr($uag,$e,$b-$e);
+            $f=strpos($end,";");
+            return $result=substr($end,$f+2);
+        }
+
+    }
     public function checkip($klid,$ci,$uc,$mc,$et){
         $uip=Request::ip();
         $tj['ip']=$uip;
@@ -139,7 +165,7 @@ class Index extends Controller
     public function yz(){
         if(Cookie::has('rid')){
             $sid=cookie('rid');
-           $menu=Db::name('kouling')->where('sid',$sid)->find();
+            $menu=Db::name('kouling')->where('sid',$sid)->find();
             if (empty($menu['menu'])){
                 $menu['menu']="1,2,3,4,5,6,7";
             }
@@ -298,6 +324,30 @@ class Index extends Controller
             'js'=>'tijian1'
         ]);
     }
+    public function shoucang(){
+        $ab=request()->ip();
+        $this->sy();
+        return $this->fetch('user',[
+            'kouling'=>Cookie::get('kouling'),
+            'uip'  => $ab,
+            'webtitle' => '收藏夹',
+            'ucity'=>$this->getCity($ab),
+            'sayhi'=>$this->sayhi(),
+            'js'=>'scj'
+        ]);
+    }
+    public function shop(){
+        $ab=request()->ip();
+        $this->sy();
+        return $this->fetch('user',[
+            'kouling'=>Cookie::get('kouling'),
+            'uip'  => $ab,
+            'webtitle' => '购物车',
+            'ucity'=>$this->getCity($ab),
+            'sayhi'=>$this->sayhi(),
+            'js'=>'shop'
+        ]);
+    }
     public function sayhi()
     {
         $ali_say = array(
@@ -368,5 +418,6 @@ class Index extends Controller
 
     }
 }
+
 
 

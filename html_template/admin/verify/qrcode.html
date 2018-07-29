@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script type="text/javascript" charset="utf8" src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="__STATIC__/__AJ__/jquery-qrcode-0.14.0.min.js"></script>
+    <script src="https://cdn.bootcss.com/html2canvas/0.4.0/html2canvas.js"></script>
+    <!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <style>
+        .myImg{
+            text-align: center;
+
+            width:100%;
+
+        }
+        #qrcode{
+            position: absolute;
+            top: 90px;
+            width: 100%;
+            text-align: center;
+        }
+        .ubtn{
+            position:absolute;
+            bottom:8px;
+            text-align:center;
+            width:100%;
+
+        }
+    </style>
+</head>
+<body>
+
+<div class="myImg" style="position:relative;">
+    <img src="__STATIC__/__AI__/mabg.jpg" class="img-responsive  center-block">
+    <div id="qrcode"></div>
+</div>
+<div class="ubtn"><a type="button" id="down_button" class="btn btn-success center-block ">点击下载图片</a></div>
+</body>
+<script>
+
+    $(function(){
+
+        $('#qrcode').qrcode({
+            render:"canvas",
+            background : "#fff",       //二维码的后景色
+            fill: "#000",        //二维码的前景色
+            size: 190,
+            minVersion:6,
+            quiet: 2,
+            text: "http://www.sd1888.cn/?sid={$Think.get.sid}"
+        });
+
+    })
+    $(document).ready(function(){
+        html2canvas($(".myImg"),{ // $(".myImg")是你要复制生成canvas的区域，可以自己选
+            onrendered:function(canvas){
+                dataURL =canvas.toDataURL("image/png");
+                $("body").append(canvas);
+
+
+                //下载图片
+                var timestamp = Date.parse(new Date());
+                $("#down_button").attr('href',canvas.toDataURL());
+                //下载下来的图片名字
+                $("#down_button").attr('download',timestamp + '.png') ;
+                $('.myImg').hide();
+            }
+        })
+    })
+</script>
+</html>

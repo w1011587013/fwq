@@ -24,16 +24,19 @@
 <div class="layui-tab">
     <ul class="layui-tab-title">
         <li class="layui-this">异常名单</li>
-        <li>账号信息</li>
+
     </ul>
     <div class="layui-tab-content">
         <div class="layui-tab-item layui-show">
 
             <div class="my-btn-box">
+                {if ($shenhe==1)}
+                {else /}
                 <span class="fl">
                     <a class="layui-btn layui-btn-danger radius btn-delect" id="btn-delete-all">批量删除</a>
                     <!--<a class="layui-btn btn-add btn-default" id="btn-add-article">发布文章</a>-->
                 </span>
+                {/if}
                 <span class="fl">
                     <a class="layui-btn radius btn-flush" id="btn-delete-flush"> <i class="layui-icon">&#x1002;</i>刷新页面</a>
                     <!--<a class="layui-btn btn-add btn-default" id="btn-add-article">发布文章</a>-->
@@ -50,7 +53,9 @@
             <table id="dateTable" class="layui-table layui-form">
                 <thead>
                 <tr>
+
                     <th><input type="checkbox" lay-skin="primary" lay-filter="allChoose" /></th>
+
                     <th>旺旺ID</th>
                     <th>IP</th>
                     <th>添加时间</th>

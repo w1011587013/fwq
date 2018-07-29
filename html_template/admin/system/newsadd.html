@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    {css href="__STATIC__/__AF__/layui2.0/css/layui.css" /}
+
+    <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+
+    <script src="__STATIC__/__AJ__/ckeditor/ckeditor.js"></script>
+    <script src="__STATIC__/__AJ__/ckfinder/ckfinder.js"></script>
+    <style>
+        .box{
+            padding-top:50px;
+        }
+        .layui-form{
+            max-width: 80%;
+        }
+        .wenben{
+            width: 500px;
+        }
+        .layui-form-label{
+            width: 100px;
+        }
+    </style>
+
+</head>
+<body>
+<div class="box layui-anim layui-anim-scale">
+<form class="layui-form">
+    <div class="wenben">
+    <div class="layui-form-item">
+        <label class="layui-form-label">新闻标题</label>
+        <div class="layui-input-block">
+            <input type="text" name="title" required  lay-verify="required" placeholder="请输入标题" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">标签</label>
+        <div class="layui-input-block">
+            <input type="text" name="tag" required  lay-verify="required" placeholder="请输入标签 以,隔开" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">来源</label>
+        <div class="layui-input-block">
+            <input type="text" name="from" required  lay-verify="" placeholder="填写来源" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">作者</label>
+        <div class="layui-input-block">
+            <input type="text" name="writer" required  lay-verify="required" placeholder="填写作者" autocomplete="off" class="layui-input" value="{$Think.session.vip_admin['account']}">
+        </div>
+    </div>
+    </div>
+    <div class="layui-form-item layui-form-text">
+        <label class="layui-form-label">文本域</label>
+        <div class="layui-input-block">
+            <textarea name="content" id="content" rows="10" cols="80" required lay-verify="">请填写内容</textarea>
+
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn" lay-submit lay-filter="formDemo">立即提交</button>
+            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+        </div>
+    </div>
+</form>
+</div><script type="text/javascript" charset="utf8" src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+{js href="__STATIC__/__AF__/layui2.0/layui.js" /}
+<script>
+    // Replace the <textarea id="editor1"> with a CKEditor
+    // instance, using default configuration.
+
+    (function () {
+        var changesCount = 0;
+        var usercont=CKEDITOR.replace(
+            'content',
+            {
+                "filebrowserImageUploadUrl": "{:url('imgupload')}",
+                removePlugins: 'sourcearea'
+            }
+
+        );
+        usercont.on( 'change', function ( ev ) {
+            changesCount++;
+
+            document.getElementById( 'content' ).innerHTML = usercont.getData();
+
+        } );
+    })();
+
+
+    function up(){
+        for (instance in CKEDITOR.instances) {
+            CKEDITOR.instances[instance].updateElement();
+        }
+    }
+
+//Demo
+    layui.use(['layer','form','jquery'],function(){
+        var form = layui.form;
+        var layer = layui.layer;
+
+        var $ = layui.$;
+        //监听提交
+
+
+        form.on('submit(formDemo)', function(data){
+
+            layer.confirm('确定要提交吗?', {icon: 3, title:'确定要提交吗'}, function(index){
+
+                    $.post("{:url('newsadd')}",data.field,function(res){
+                // 判断是否成功
+
+                if(res.status > 0){
+                    // 添加成功跳转
+                    layer.msg(res.msg,{time:500},function(){
+
+
+                        // 跳转
+                        window.location.href = "{:url('newsadd')}";
+                    })
+                }else{
+                    // 失败则提示
+                    layer.msg(res.msg);
+
+                }
+                    });
+                layer.close(index);
+            });
+            return false;
+        });
+    });
+
+    // var editor = CKEDITOR.replace( 'editor1' );
+    // CKFinder.setupCKEditor( editor );
+</script>
+
+</body>
+</html>

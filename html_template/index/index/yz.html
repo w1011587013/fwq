@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="apple-touch-fullscreen" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+    <meta name="renderer" content="webkit">
+    <title>{$webtitle}</title>
+    <!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+    <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <style type="text/css">
+        .hbox{
+            text-align: center;
+            padding-top:30px;
+        }
+        body{
+            background-color: #f1f1f1;
+        }
+        .container{
+                padding-right: 0px;
+                padding-left: 0px
+        }
+        .hbtn{
+            font-size: 18px;
+            margin-top:0px;
+            height: 50px;
+            line-height: 35px;
+            background-color: #fff;
+            text-align: left;
+            color: #323232;
+        }
+        .hbtn span{
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+<header><h1 style="text-align:center">{$title}</h1></header>
+<div class="container">
+    <p></p>
+    {volist name="ubtn" id="vo" }
+
+    <a href="{$vo.murl}" class="col-xs-12 hbtn" >
+        <span class="glyphicon {$vo.micon}" aria-hidden="true"></span>
+        {$vo.mname}</a>
+
+    {/volist}
+    <!--<a href="order.php" class="col-xs-4 btn btn-primary hbtn" >-->
+        <!--<span class="glyphicon glyphicon-align-justify" aria-hidden="true"></span>-->
+        <!--所有订单（第二张）-->
+    <!--</a>-->
+
+    <!--<a href="xy.php" class="col-xs-4 btn btn-success hbtn" >-->
+        <!--<span class="glyphicon glyphicon-heart-empty" aria-hidden="true"></span>-->
+        <!--我的信誉（第三张）</a>-->
+
+    <!--<a href="tj.php" class="col-xs-4 btn btn-warning hbtn" >-->
+        <!--<span class="glyphicon glyphicon-search" aria-hidden="true"></span>看淘气值（第四张）</a>-->
+    <!--<a href="tk.php" class="col-xs-4 btn btn-warning hbtn" >-->
+        <!--<span class="glyphicon glyphicon-search" aria-hidden="true"></span>退款管理（第五张）</a>-->
+
+    <!--<a href="xinyong.php" class="col-xs-4 btn btn-danger hbtn" >-->
+        <!--<span class="glyphicon glyphicon-yen" aria-hidden="true"></span>-->
+        <!--信用中心（第六张）</a>-->
+
+</div>
+
+</body>
+</html>

@@ -14,9 +14,10 @@ use think\helper\Time;
 class Blacklist extends AdminBase
 {
 
-    public function index(){
+    public function index(){//自用黑名单
         if (Request::isPost()){
             $data=Db::name('blacklist')->where('status','1')->select();
+
             if ($data){
                 $this->ajaxReturn(['data'=>$data]);
             }
@@ -25,7 +26,25 @@ class Blacklist extends AdminBase
             }
 
         }
-        return $this->fetch();
+        return $this->fetch('index',[
+            'shenhe'=>1
+        ]);
+    }
+    public function vblack(){  //vip黑名单
+        if (Request::isPost()){
+            $data=Db::name('blacklist')->where('status','1')->select();
+
+            if ($data){
+                $this->ajaxReturn(['data'=>$data]);
+            }
+            else{
+                $this->ajaxReturn(['data'=>""]);
+            }
+
+        }
+        return $this->fetch('vblack',[
+            'shenhe'=>1
+        ]);
     }
     public function add(){
         $data['msg']='未收到消息';
@@ -190,6 +209,7 @@ class Blacklist extends AdminBase
     public function shenhe(){
         if (Request::isPost()){
             $data=Db::name('blacklist')->where('status',0)->select();
+
             if ($data){
                 $this->ajaxReturn(['data'=>$data]);
             }else{
@@ -198,7 +218,7 @@ class Blacklist extends AdminBase
 
         }
         return $this->fetch('index',[
-            'shenhe'=>'0'
+            'shenhe'=>0
         ]);
     }//审核黑名单
     public function blStatus(){//status开关
@@ -242,5 +262,29 @@ class Blacklist extends AdminBase
         $this->ajaxReturn($data);
     }//黑名单删除
 
+    public function weixian(){  //危险IP
+       if (Request::isPost()){
+            $db=Db::name('klresult')->where('smresult', 'like','%危险%')->field('id,smip,smtime,smresult,uadd,jubao')->select();
 
+            if ($db){
+                $a=[];
+                $data=[];
+                foreach ($db as $key =>$val){
+                    if (!in_array($val['smip'], $a)){
+                        $a[]=$val['smip'];
+                        $data[]=$val;
+                    }
+                }
+                $this->ajaxReturn(['data'=>$data]);
+            }
+            else{
+                $this->ajaxReturn(['data'=>""]);
+            }
+
+        }
+
+        return $this->fetch('weixian',[
+            'shenhe'=>1
+        ]);
+    }
 }
